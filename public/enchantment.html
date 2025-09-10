@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Encantamento</title>
+    <link rel="icon" href="assets/img/logo.png" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/enchantment.css">
+</head>
+<body>
+    <main id="app-container" class="gradient-border">
+        <header id="panel-header">
+            <div class="header-content">
+                <h1 class="header-title gradient-text">Portal do Encantamento</h1>
+                <p id="portal-subtitle" class="header-subtitle">Deixe sua marca na nossa noite!</p>
+            </div>
+        </header>
+
+        <section class="card-style">
+            <div id="form-view">
+                <div class="form-group">
+                    <label for="wristband-code">Primeiro, seu código da pulseira:</label>
+                    <input type="number" id="wristband-code" class="form-input" placeholder="Ex: 123456" inputmode="numeric">
+                </div>
+                <div class="form-group">
+                    <label for="user-name">Seu nome (ou apelido):</label>
+                    <input type="text" id="user-name" class="form-input" placeholder="Como devemos te chamar?">
+                </div>
+                <div class="form-group">
+                    <label for="message-text">Sua mensagem para o telão:</label>
+                    <textarea id="message-text" class="form-input" rows="4" placeholder="Capriche na mensagem..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button id="submit-message-btn" class="button primary-button">
+                        <span id="submit-btn-text">Encantar!</span>
+                        <i id="submit-spinner" class="fas fa-spinner fa-spin hidden"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="response-view" class="hidden">
+                <div class="response-content">
+                    <i id="response-icon" class="fas fa-check-circle"></i>
+                    <h3 id="response-title">Obrigado!</h3>
+                    <p id="response-text">Sua mensagem foi recebida.</p>
+                    <button id="back-to-form-btn" class="button secondary-button">Enviar outra mensagem</button>
+                </div>
+            </div>
+        </section>
+        
+        <div id="character-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h3 class="modal-header">Sua mensagem foi aprovada!</h3>
+                <p class="modal-text">Escolha um personagem para ler sua mensagem no telão:</p>
+                <div id="character-list" class="character-grid">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/enchantmentUI.js"></script>
+</body>
+</html>

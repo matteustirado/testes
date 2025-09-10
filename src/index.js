@@ -29,6 +29,7 @@ const rankingRoutes = require('./api/routes/rankingRoutes');
 const webRatingRoutes = require('./api/routes/webRatingRoutes');
 const twitterRepostRoutes = require('./api/routes/twitterRepostRoutes');
 const gameRoutes = require('./api/routes/gameRoutes');
+const enchantmentRoutes = require('./api/routes/enchantmentRoutes');
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -42,7 +43,6 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Middleware de Log de Requisições - ADICIONADO PARA DEBUG
 app.use((req, res, next) => {
     console.log(`[REQUEST LOGGER] Method: ${req.method}, URL: ${req.originalUrl}, IP: ${req.ip}`);
     next();
@@ -78,6 +78,7 @@ app.use('/api/ranking', rankingRoutes);
 app.use('/api/webrating', webRatingRoutes);
 app.use('/api/tweets', twitterRepostRoutes);
 app.use('/api/game', gameRoutes);
+app.use('/api/enchantment', enchantmentRoutes);
 
 httpServer.listen(PORT, () => {
     console.log(`Servidor da Rádio Dédalos rodando na porta ${PORT}`);

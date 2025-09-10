@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFichaData = null;
     let songChangeTimeout = null;
 
+    const body = document.body;
     const videoContainer = document.getElementById('video-container');
     const unmuteOverlay = document.getElementById('unmute-overlay');
     const bottomControls = document.getElementById('bottom-controls');
@@ -18,6 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const fichaArtista = document.getElementById('ficha-artista');
     const fichaGravadora = document.getElementById('ficha-gravadora');
     const fichaDirecao = document.getElementById('ficha-direcao');
+
+    const enchantmentContainer = document.getElementById('enchantment-container');
+    const enchantmentVideo = document.getElementById('enchantment-video');
+    let isEnchantmentPlaying = false;
 
     const updateOverlay = (filename) => {
         if (filename && videoOverlay) {
@@ -90,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
         video.play().catch(() => {});
         syncUI();
         
-        // Adiciona a funcionalidade de tela cheia
         if (!document.fullscreenElement) {
             videoContainer.requestFullscreen().catch(err => {
                 console.error(`Erro ao tentar entrar em tela cheia: ${err.message}`);
@@ -195,6 +199,53 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Falha ao buscar overlay atual:", error);
         }
     }
+
+    const playEnchantmentVideo = (videoUrl) => {
+        if (isEnchantmentPlaying) return;
+        isEnchantmentPlaying = true;
+
+        video.pause();
+        enchantmentContainer.classList.remove('hidden');
+        body.classList.add('enchantment-active');
+        
+        enchantmentVideo.src = videoUrl;
+        enchantmentVideo.muted = false;
+        enchantmentVideo.play();
+        
+        enchantmentVideo.onended = () => {
+            body.classList.remove('enchantment-active');
+            enchantmentContainer.classList.add('hidden');
+            video.play();
+            isEnchantmentPlaying = false;
+        };
+    };
+
+    const pollVideoStatus = (videoId) => {
+        let attempts = 0;
+        const maxAttempts = 20;
+        const interval = 10000;
+
+        const poll = setInterval(async () => {
+            if (attempts >= maxAttempts) {
+                clearInterval(poll);
+                console.error(`[Enchantment] Tempo esgotado para o vídeo ${videoId}`);
+                return;
+            }
+            try {
+                const data = await apiFetch(`/api/enchantment/video_status/${videoId}`);
+                if (data && data.status === 'succeeded' && data.video_url) {
+                    clearInterval(poll);
+                    playEnchantmentVideo(data.video_url);
+                } else if (data && data.status === 'failed') {
+                    clearInterval(poll);
+                    console.error(`[Enchantment] Falha ao gerar o vídeo ${videoId}`);
+                }
+            } catch (error) {
+                console.error(`[Enchantment] Erro ao verificar status do vídeo:`, error);
+                attempts++;
+            }
+        }, interval);
+    };
     
     video.addEventListener('ended', () => {
         songChangeTimeout = setTimeout(fetchCurrentSong, 2000);
@@ -207,15 +258,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('player:pause', () => {
-        video.pause();
+        if (!isEnchantmentPlaying) video.pause();
     });
 
     socket.on('player:play', () => {
-        video.play().catch(e => console.error("Erro ao tentar dar play:", e));
+        if (!isEnchantmentPlaying) video.play().catch(e => console.error("Erro ao tentar dar play:", e));
     });
 
     socket.on('overlay:updated', (data) => {
         updateOverlay(data.filename);
+    });
+    
+    socket.on('enchantment:videoReady', (data) => {
+        console.log("Vídeo de encantamento pronto!", data);
+        if (data.videoUrl) {
+            playEnchantmentVideo(data.videoUrl);
+        }
     });
 
     fetchCurrentSong();
